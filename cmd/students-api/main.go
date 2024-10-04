@@ -12,15 +12,25 @@ import (
 
 	"github.com/ChandanJnv/students-api/internal/config"
 	"github.com/ChandanJnv/students-api/internal/handlers/student"
+	"github.com/ChandanJnv/students-api/internal/storage/sqlite"
 )
 
 func main() {
 	// load config
 	cfg := config.MustLoad()
+
 	// database setup
+	storage, err := sqlite.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	slog.Info("Database initialized", slog.String("env", cfg.Env), slog.String("version", "1.0.0"))
+
 	// setup router
 	router := http.NewServeMux()
-	router.HandleFunc(http.MethodPost+" /api/students", student.New())
+	router.HandleFunc(http.MethodPost+" /api/students", student.New(storage))
+	router.HandleFunc(http.MethodGet+" /api/students/{id}", student.GetById(storage))
+	router.HandleFunc(http.MethodGet+" /api/students/all", student.GetAllStudents(storage))
 
 	// setup server
 	server := http.Server{
