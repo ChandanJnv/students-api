@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ChandanJnv/students-api/internal/config"
+	"github.com/ChandanJnv/students-api/internal/handlers/student"
 )
 
 func main() {
@@ -19,10 +20,8 @@ func main() {
 	// database setup
 	// setup router
 	router := http.NewServeMux()
-	router.HandleFunc(http.MethodGet+" /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome to students API"))
+	router.HandleFunc(http.MethodPost+" /api/students", student.New())
 
-	})
 	// setup server
 	server := http.Server{
 		Addr:    cfg.Addr,
