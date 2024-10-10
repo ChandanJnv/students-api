@@ -23,7 +23,7 @@ func New(cfg *config.Config) (*sqlite, error) {
 	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS students (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
-		email TEXT NOT NULL,
+		email TEXT NOT NULL UNIQUE,
 		age INTEGER NOT NULL
 	)`); err != nil {
 		return nil, err
@@ -120,6 +120,33 @@ func (s *sqlite) DeleteById(id int64) error {
 		return err
 	}
 	slog.Info("deleted student", slog.Int64("id", id))
+
+	return nil
+}
+
+func (s *sqlite) UpdateById(id int64, name, email string, age int) error {
+
+	_, err := s.GetById(id)
+	if err != nil {
+		slog.Error("student not found", slog.String("error", err.Error()))
+		return err
+	}
+
+	stmt, err := s.Db.Prepare(`UPDATE students SET name = ?, email = ?, age = ? WHERE id = ?`)
+	if err != nil {
+		slog.Error("failed to prepare database statement", slog.String("error", err.Error()))
+		return err
+	}
+	defer stmt.Close()
+
+	result, err := stmt.Exec(name, email, age, id)
+	if err != nil {
+		slog.Error("failed to update student", slog.String("error", err.Error()))
+		return err
+	}
+
+	rows, _ := result.RowsAffected()
+	slog.Info("updated student", slog.Int64("id", id), slog.Int64("rows affected", rows))
 
 	return nil
 }
