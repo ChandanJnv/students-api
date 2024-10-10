@@ -28,9 +28,14 @@ func main() {
 
 	// setup router
 	router := http.NewServeMux()
+	router.HandleFunc(http.MethodGet+" /", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Students API is running"))
+	})
 	router.HandleFunc(http.MethodPost+" /api/students", student.New(storage))
 	router.HandleFunc(http.MethodGet+" /api/students/{id}", student.GetById(storage))
 	router.HandleFunc(http.MethodGet+" /api/students/all", student.GetAllStudents(storage))
+	router.HandleFunc(http.MethodDelete+" /api/students/{id}", student.DeleteById(storage))
+	// router.HandleFunc(http.MethodPut+" /api/students/{id}", student.UpdateById(storage))
 
 	// setup server
 	server := http.Server{

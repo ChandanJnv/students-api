@@ -88,3 +88,31 @@ func GetAllStudents(storage storage.Storage) http.HandlerFunc {
 		response.WriteJSON(w, http.StatusOK, students)
 	}
 }
+
+func DeleteById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		if id == "" {
+			slog.Error("failed to Get student by id", slog.String("id", id))
+			response.WriteJSON(w, http.StatusBadRequest, response.GeneralError(errors.New("id is required")))
+			return
+		}
+		slog.Info("Get student by id", slog.String("id", id))
+
+		studentID, err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			slog.Error("failed to parse id into int64", slog.String("id", id), slog.String("error", err.Error()))
+			response.WriteJSON(w, http.StatusBadRequest, response.GeneralError(err))
+			return
+		}
+
+		if err := storage.DeleteById((studentID)); err != nil {
+			slog.Error("failed to Delete student by id", slog.String("id", id), slog.String("error", err.Error()))
+			response.WriteJSON(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		response.WriteJSON(w, http.StatusOK, map[string]string{"result": "successs"})
+
+	}
+}
