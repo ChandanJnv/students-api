@@ -47,6 +47,8 @@ git clone https://github.com/ChandanJnv/students-api.git
 cd students-api
 ```
 
+Note:- add/update db file path in "config/local.yaml".
+
 2. Run the following command to start the server:
 
 ```bash
